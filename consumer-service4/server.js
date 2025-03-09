@@ -1,10 +1,25 @@
 const express = require('express');
 const connectDB = require('./connection/db');
 const consumeOrders = require('./consumer');
+const client = require('prom-client');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 4005;
+//collect server mtric(internal details)
+const collectDefaultMetrics = client.collectDefaultMetrics;
+
+
+//get data from server and throw it to endpoin
+collectDefaultMetrics({register: client.register});
+
+
+app.get('/metrics',async (req, res) => {
+    res.setHeader('Content-Type', client.register.contentType);
+    const metrics = await client.register.metrics();
+    res.send(metrics);
+});
+
 
 connectDB();
 consumeOrders();

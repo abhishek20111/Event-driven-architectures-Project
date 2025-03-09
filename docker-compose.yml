@@ -23,9 +23,11 @@ services:
     environment:
       - RABBITMQ_URL=amqp://rabbitmq
       - MONGO_URI=mongodb://mongo:27017
+      - REDIS_URL=redis://redis:6379  # Redis connection string
     depends_on:
       - rabbitmq
       - mongo
+      - redis  # Ensure Redis starts before consumers
 
   mongo:
     image: mongo
@@ -33,6 +35,16 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db  # Persist MongoDB data
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data  # Persist Redis data
+    command: ["redis-server", "--appendonly", "yes"]
 
   prometheus:
     image: prom/prometheus
@@ -45,7 +57,7 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
 
   grafana:
-    image: grafana/grafana-oss  # Using Grafana OSS
+    image: grafana/grafana-oss
     container_name: grafana
     ports:
       - "3000:3000"
@@ -53,19 +65,10 @@ services:
       - prometheus
       - loki
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin  # Change for security
+      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
     volumes:
-      - grafana_data:/var/lib/grafana  # Persist Grafana data
-
-  # loki:
-  #   image: grafana/loki
-  #   container_name: loki
-  #   ports:
-  #     - "3100:3100"
-  #   volumes:
-  #     - ./monitoring/loki-config.yml:/etc/loki/loki-config.yml
-  #   command: -config.file=/etc/loki/loki-config.yml
+      - grafana_data:/var/lib/grafana
 
   loki:
     image: grafana/loki
@@ -73,10 +76,10 @@ services:
     ports:
       - "3100:3100"
 
- 
-
 volumes:
   mongo_data:
     driver: local
   grafana_data:
+    driver: local
+  redis_data:
     driver: local

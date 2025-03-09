@@ -22,8 +22,8 @@ async function consumeOrders() {
             } catch (err) {
                 console.error('❌ Error processing order:', err);
                 channel.nack(msg, false, false); // Reject message if processing fails
-            }
-        }, { noAck: false });
+            } 
+        }, { noAck: false }); 
 
         console.log('🚀 Consumer Service 1 is running...');
     } catch (err) {

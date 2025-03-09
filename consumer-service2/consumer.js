@@ -24,7 +24,7 @@ async function consumeOrders() {
                 channel.nack(msg, false, false); // Reject message if processing fails
             }
         }, { noAck: false });
-
+ 
         console.log('🚀 Consumer Service 2 is running...');
     } catch (err) {
         console.error('❌ RabbitMQ Consumer Error:', err);

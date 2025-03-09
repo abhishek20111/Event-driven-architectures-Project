@@ -10,7 +10,7 @@ const connectDB = async () => {
         .catch((err) => console.error("❌ MongoDB Connection Error ", err));
 
 };
- 
+  
 // Function to get a specific database instance
 const getDB = (dbName) => {
     return mongoose.connection.useDb(dbName);
