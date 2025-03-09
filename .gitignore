@@ -17,6 +17,8 @@ consumer-service1/package-lock.json
 consumer-service2/package-lock.json
 consumer-service3/package-lock.json
 consumer-service4/package-lock.json
+data-access-service/package-lock.json
+data-access-service/node_modules
 
 # Ignore environment files
 .env
@@ -28,6 +30,7 @@ consumer-service1/.env
 consumer-service2/.env
 consumer-service3/.env
 consumer-service4/.env
+data-access-service/.env
 
 # Ignore log files
 logs/

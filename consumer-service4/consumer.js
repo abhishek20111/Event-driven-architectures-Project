@@ -21,7 +21,7 @@ async function consumeOrders() {
                 channel.ack(msg);
             } catch (err) {
                 console.error('❌ Error processing order:', err);
-                channel.nack(msg, false, false); // Reject message if processing fails
+                channel.nack(msg, false, true); // Retry message (requeue) if processing fails
             }
         }, { noAck: false });
 
@@ -32,25 +32,3 @@ async function consumeOrders() {
 }
 
 module.exports = consumeOrders;
-
-
-// const amqp = require('amqplib');
-// const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
-
-// async function consumeOrders() {
-//     try {
-//         const connection = await amqp.connect(RABBITMQ_URL);
-//         const channel = await connection.createChannel();
-//         const queue = 'orderQueue1';
-
-//         await channel.assertQueue(queue, { durable: true });
-//         channel.consume(queue, (msg) => {
-//             const order = JSON.parse(msg.content.toString());
-//             console.log('Processing order:', order);
-//             channel.ack(msg);
-//         }, { noAck: false });
-//     } catch (err) {
-//         console.error('Error consuming orders:', err);
-//     }
-// }
-// consumeOrders();
