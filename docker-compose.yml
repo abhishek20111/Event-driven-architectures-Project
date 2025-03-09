@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer-service1:
+    build: ./producer-service1
+    ports:
+      - "3001:3001"
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - rabbitmq
+
+  consumer-service1:
+    build: ./consumer-service1
+    ports:
+      - "4001:4001"
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+      - MONGO_URI=mongodb://mongo:27017/orderDB
+    depends_on:
+      - rabbitmq
+      - mongo
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db  # Persist MongoDB data
+
+volumes:
+  mongo_data:
+    driver: local
