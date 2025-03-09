@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 5s  # Adjust the interval as needed
+
+scrape_configs:
+  - job_name: 'data-access-service'
+    static_configs:
+      - targets: ['192.168.0.106:5000']
+
+  - job_name: 'producer-service-1'
+    static_configs:
+      - targets: ['192.168.0.106:5001']
+
+  - job_name: 'producer-service-2'
+    static_configs:
+      - targets: ['192.168.0.106:5002']
+
+  - job_name: 'producer-service-3'
+    static_configs:
+      - targets: ['192.168.0.106:5003']
+
+  - job_name: 'producer-service-4'
+    static_configs:
+      - targets: ['192.168.0.106:5004']
+
+  - job_name: 'consumer-service-1'
+    static_configs:
+      - targets: ['192.168.0.106:6001']
+
+  - job_name: 'consumer-service-2'
+    static_configs:
+      - targets: ['192.168.0.106:6002']
+
+  - job_name: 'consumer-service-3'
+    static_configs:
+      - targets: ['192.168.0.106:6003']
+
+  - job_name: 'consumer-service-4'
+    static_configs:
+      - targets: ['192.168.0.106:6004']

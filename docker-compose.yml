@@ -34,6 +34,49 @@ services:
     volumes:
       - mongo_data:/data/db  # Persist MongoDB data
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana-oss  # Using Grafana OSS
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Change for security
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - grafana_data:/var/lib/grafana  # Persist Grafana data
+
+  # loki:
+  #   image: grafana/loki
+  #   container_name: loki
+  #   ports:
+  #     - "3100:3100"
+  #   volumes:
+  #     - ./monitoring/loki-config.yml:/etc/loki/loki-config.yml
+  #   command: -config.file=/etc/loki/loki-config.yml
+
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+      - "3100:3100"
+
+ 
+
 volumes:
   mongo_data:
+    driver: local
+  grafana_data:
     driver: local

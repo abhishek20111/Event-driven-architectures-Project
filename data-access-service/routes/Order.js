@@ -6,12 +6,15 @@ const {
     getAllOrdersService4,
     getAllOrdersFromAllServices
 } = require('../services/orderService');
+const { Logger } = require('winston');
 
 const router = express.Router();
 
 // ✅ Route 1: Get Orders from Consumer Service 1
 router.get('/orders/service1', async (req, res) => {
     try {
+        // console.log('Getting orders from Service 1 try'); 
+        // Logger.info('Getting orders from Service 1');
         console.log('Getting orders from Service 1');
         const orders = await getAllOrdersService1();
         res.json(orders);
