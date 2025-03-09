@@ -1,160 +1,150 @@
-# Event-Driven Microservices System
+# Event-Driven Scalable Data Processing System
 
-🚀 **A Scalable Event-Driven System using RabbitMQ, Redis, and MongoDB with Microservices Architecture**
-
-This project demonstrates a microservices-based system with RabbitMQ for event-driven communication, Redis for caching, and MongoDB for persistent storage. The system consists of multiple producers, consumers, a data access service, and monitoring tools like Prometheus and Grafana.
-
----
-
-## 🌟 Features
-
-- **Event-Driven Architecture**: RabbitMQ ensures asynchronous message processing.
-- **Caching with Redis**: Improves performance by reducing database queries.
-- **MongoDB for Persistence**: Stores processed orders in different consumer databases.
-- **Scalability**: Multiple producer and consumer services for high throughput.
-- **Monitoring & Logging**: Prometheus, Grafana, and Loki for insights and debugging.
-- **GraphQL API**: Query processed data efficiently.
+## Introduction
+This project implements a scalable and resilient **event-driven system** for processing high-throughput real-time data streams using **RabbitMQ, MongoDB, Redis, GraphQL, Prometheus, Loki, and Grafana**. It features **four producers and four consumers**, ensuring fault tolerance, monitoring, and caching to enhance performance and reliability. The system is **fully containerized** with Docker, making it ready for Kubernetes (K8s) integration in the future.
 
 ---
 
-## 🏗️ System Architecture
+## Assessment Problem Statement
+### Challenge:
+Design and implement a resilient event-processing system capable of handling high-throughput real-time data streams while maintaining data integrity and performance.
 
-- **Producers**: Generate orders and send them to RabbitMQ.
-- **Consumers**: Receive orders from RabbitMQ, process them, and store them in MongoDB.
-- **Data Access Service**: Serves data from MongoDB with Redis caching.
-- **Monitoring**: Prometheus, Grafana, and Loki collect and visualize system metrics.
+### Key Requirements & How Our System Fulfills Them:
+
+1. **Scalable Event Ingestion Pipeline**
+   - We use **RabbitMQ** ([Official Docs](https://www.rabbitmq.com/documentation.html)) as a message broker to efficiently ingest data from **four different producers**.
+   - Each producer sends data to RabbitMQ, which distributes messages to available consumers.
+   - **Scalability:** RabbitMQ queues and load balancing ensure smooth data ingestion under high traffic.
+
+2. **Reliable Event Processing with Error Handling**
+   - Consumers process messages and store them in **MongoDB**.
+   - **Fault Tolerance:** If a consumer fails, messages are re-queued using:
+     ```js
+     channel.nack(msg, false, true);
+     ```
+     This ensures that messages are not lost and are retried in case of failure.
+   - **Acknowledgment:** Once successfully processed, messages are acknowledged:
+     ```js
+     channel.ack(msg);
+     ```
+
+3. **Queryable API for Processed Data**
+   - Implemented a **GraphQL API** ([Official Docs](https://graphql.org/)) for optimized querying.
+   - Redis caching is used to **speed up API calls** and reduce load on MongoDB.
+
+4. **Monitoring and Observability**
+   - **Grafana ([Docs](https://grafana.com/docs/))**: Visual dashboards for system metrics.
+   - **Prometheus ([Docs](https://prometheus.io/docs/))**: Captures real-time performance data.
+   - **Loki ([Docs](https://grafana.com/oss/loki/))**: Log aggregation and debugging.
+   - API endpoint to expose metrics:
+     ```js
+     app.get('/metrics', async (req, res) => {
+         res.setHeader('Content-Type', client.register.contentType);
+         const metrics = await client.register.metrics();
+         res.send(metrics);
+     });
+     ```
+
+5. **System Resilience and Kubernetes Readiness**
+   - **Containerization:** Dockerized services for easy deployment and scaling.
+   - **Future K8s Integration:** The system can be deployed on Kubernetes ([Docs](https://kubernetes.io/docs/)) to scale dynamically with multiple pods.
 
 ---
 
-## 🛠️ Setup Instructions
+## Project Setup & Running Locally
 
-### 1️⃣ Clone the Repository
+### Prerequisites
+- **Docker & Docker Compose** ([Install Docker](https://docs.docker.com/get-docker/))
+- **Node.js** ([Install Node.js](https://nodejs.org/))
 
+### Step 1: Clone the Repository
 ```sh
  git clone https://github.com/your-repo/event-driven-system.git
  cd event-driven-system
 ```
 
-### 2️⃣ Start the Services with Docker Compose
-
+### Step 2: Configure Prometheus Monitoring
+- Find your **private IPv4 address** using:
 ```sh
- docker-compose up --build -d
+ ipconfig   # On Windows
+ ifconfig   # On Linux/macOS
+```
+- Edit `monitoring/prometheus.yml`, replace `<PRIVATE_IP>` with your system’s private IP:
+```yaml
+  - job_name: 'node'
+    static_configs:
+      - targets: ['<PRIVATE_IP>:9090']
 ```
 
-This will start the following services:
-
-- RabbitMQ
-- MongoDB
-- Redis
-- Producer & Consumer Services
-- Data Access Service
-- Prometheus & Grafana
-- Loki for Logging
-
-### 3️⃣ Verify the Running Services
-
-#### 🛠️ RabbitMQ Management UI
-
-> 📍 Open [http://localhost:15672](http://localhost:15672) (Username: `guest`, Password: `guest`)
-
-#### 🛠️ MongoDB
-
-Check running databases:
-
+### Step 3: Start Services with Docker Compose
 ```sh
- docker exec -it <mongo_container_id> mongosh
- show dbs
+ docker-compose up -d
 ```
 
-#### 🛠️ Redis CLI
-
-Check Redis cache:
-
+### Step 4: Check Running Services
 ```sh
- docker exec -it <redis_container_id> redis-cli
- keys *
+ docker ps
 ```
 
-#### 🛠️ Prometheus
+### Step 5: Access Services
+| Service    | URL |
+|------------|--------------------------------|
+| **API Gateway**  | http://localhost:5000/api |
+| **GraphQL Playground** | http://localhost:5000/graphql |
+| **RabbitMQ Management** | http://localhost:15672 |
+| **MongoDB** | mongodb://localhost:27017 |
+| **Prometheus** | http://localhost:9090 |
+| **Grafana** | http://localhost:3000 |
+| **Loki** | http://localhost:3100 |
 
-> 📍 Open [http://localhost:9090](http://localhost:9090)
-
-#### 🛠️ Grafana
-
-> 📍 Open [http://localhost:3000](http://localhost:3000) (Username: `admin`, Password: `admin`)
-
----
-
-## 🔄 API Endpoints
-
-### 📦 Producer API (Send Order)
-
+### Step 6: Check Metrics
 ```sh
- curl -X POST http://localhost:3001/api/orders -H "Content-Type: application/json" -d '{"product": "Mobile", "quantity": 2}'
-```
-
-### 📥 Consumer APIs (Get Processed Orders)
-
-```sh
- curl -X GET http://localhost:4001/api/orders
-```
-
-### 📡 Data Access Service (Fetch Orders from Cache/DB)
-
-```sh
- curl -X GET http://localhost:5000/api/orders/service1
-```
-
-### 🔍 GraphQL Endpoint (Query Processed Orders)
-
-> 📍 Open [http://localhost:5000/graphql](http://localhost:5000/graphql) and run queries like:
-
-```graphql
-{
-  getAllOrdersFromAllServices {
-    service1 {
-      id
-      product
-      quantity
-    }
-  }
-}
+ curl http://localhost:5000/metrics
 ```
 
 ---
 
-## 📌 Useful Docker Commands
+## Key Features
+### RabbitMQ - Event Broker
+- Manages message queues between producers and consumers.
+- Handles **message durability, load balancing, and retries**.
+- **Docs:** [RabbitMQ Documentation](https://www.rabbitmq.com/documentation.html)
 
-### 🏁 Start All Services
-```sh
- docker-compose up --build -d
-```
+### MongoDB - Persistent Storage
+- Stores processed data from consumers.
+- Can scale with **sharding and replication**.
+- **Docs:** [MongoDB Documentation](https://www.mongodb.com/docs/)
 
-### 🛑 Stop All Services
-```sh
- docker-compose down
-```
+### Redis - Caching Layer
+- Stores frequently accessed API responses to **reduce load on MongoDB**.
+- Improves query performance.
+- **Docs:** [Redis Documentation](https://redis.io/documentation)
 
-### 🧹 Remove Containers & Volumes
-```sh
- docker-compose down -v
-```
+### GraphQL - Optimized API
+- Allows flexible queries with **reduced over-fetching**.
+- Provides an efficient way to retrieve processed event data.
+- **Docs:** [GraphQL Documentation](https://graphql.org/)
 
-### 📜 View Logs for a Service
-```sh
- docker logs -f <container_name>
-```
-
-### 🔄 Restart a Specific Service
-```sh
- docker restart <container_name>
-```
+### Observability Stack
+| Tool        | Purpose |
+|------------|--------------------------------|
+| **Prometheus** | Collects real-time system metrics |
+| **Grafana** | Visualizes monitoring dashboards |
+| **Loki** | Aggregates system logs |
 
 ---
 
-## 🏆 Conclusion
+## Future Enhancements
+- **Kubernetes Deployment**: Scale dynamically with K8s pods.
+- **Advanced Alerting**: Set up alerts for failures using Prometheus Alertmanager.
+- **Data Streaming**: Use Kafka alongside RabbitMQ for event stream processing.
 
-This project provides a scalable and efficient event-driven system using RabbitMQ, Redis, and MongoDB. With monitoring and logging tools, it ensures high availability, performance, and observability.
+---
 
-Happy Coding! 🚀🔥
+## Conclusion
+This project successfully implements a **fault-tolerant, event-driven architecture** with **high scalability** and **observability**. With its containerized setup, **monitoring tools, caching, and robust messaging system**, it provides a **strong foundation** for real-time event processing applications.
+
+---
+
+Happy Coding! 🚀
 
