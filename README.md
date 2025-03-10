@@ -9,14 +9,21 @@ This project implements a scalable and resilient **event-driven system** for pro
 ### Challenge:
 Design and implement a resilient event-processing system capable of handling high-throughput real-time data streams while maintaining data integrity and performance.
 
+## System Architecture
+🚀 Below is a high-level architecture diagram representing the system's event-driven data flow.
+<img width="788" alt="Untitled" src="https://github.com/user-attachments/assets/a6314ae9-6d3c-4670-833c-f8c8c16ba6af" />
+
+
 ### Key Requirements & How Our System Fulfills Them:
 
 1. **Scalable Event Ingestion Pipeline**
+   ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
    - We use **RabbitMQ** ([Official Docs](https://www.rabbitmq.com/tutorials)) as a message broker to efficiently ingest data from **four different producers**.
    - Each producer sends data to RabbitMQ, which distributes messages to available consumers.
    - **Scalability:** RabbitMQ queues and load balancing ensure smooth data ingestion under high traffic.
 
-2. **Reliable Event Processing with Error Handling**
+3. **Reliable Event Processing with Error Handling**
+   ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
    - Consumers process messages and store them in **MongoDB**.
    - **Fault Tolerance:** If a consumer fails, messages are re-queued using:
      ```js
@@ -28,14 +35,15 @@ Design and implement a resilient event-processing system capable of handling hig
      channel.ack(msg);
      ```
 
-3. **Queryable API for Processed Data**
+5. **Queryable API for Processed Data**
+   ![GraphQL](https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)
    - Implemented a **GraphQL API** ([Official Docs](https://graphql.org/faq/getting-started)) for optimized querying.
    - Redis caching is used to **speed up API calls** and reduce load on MongoDB.
 
-4. **Monitoring and Observability**
-   - **Grafana ([Docs](https://grafana.com/docs/grafana/latest/getting-started))**: Visual dashboards for system metrics.
-   - **Prometheus ([Docs](https://prometheus.io/docs/prometheus/latest/getting_started/))**: Captures real-time performance data.
-   - **Loki ([Docs](https://grafana.com/docs/loki/latest/get-started/quick-start/))**: Log aggregation and debugging.
+7. **Monitoring and Observability**
+   - ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white) **Grafana** ([Docs](https://grafana.com/docs/grafana/latest/getting-started)): Visual dashboards for system metrics.  
+   - ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white) **Prometheus** ([Docs](https://prometheus.io/docs/prometheus/latest/getting_started/)): Captures real-time performance data.  
+   - ![Loki](https://img.shields.io/badge/Loki-00ADD8?style=for-the-badge&logo=grafana&logoColor=white) **Loki** ([Docs](https://grafana.com/docs/loki/latest/get-started/quick-start/)): Log aggregation and debugging.  
    - API endpoint to expose metrics:
      ```js
      app.get('/metrics', async (req, res) => {
@@ -57,7 +65,9 @@ Design and implement a resilient event-processing system capable of handling hig
       const logger = createLogger(options);
       ```
 
-5. **System Resilience and Kubernetes Readiness**
+9. **System Resilience and Kubernetes Readiness**
+   ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+   ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
    - **Containerization:** Dockerized services for easy deployment and scaling.
    - **Future K8s Integration:** The system can be deployed on Kubernetes ([Docs](https://kubernetes.io/docs/setup/)) to scale dynamically with multiple pods.
 
@@ -145,11 +155,50 @@ Design and implement a resilient event-processing system capable of handling hig
 | **Loki** | Aggregates system logs |
 
 ---
+### System Demonstration 📸
+   - Below are screenshots of the system in action, showcasing key components like consumers processing events, and Docker managing all services.
+
+### 1️⃣ Running Consumers in the Console
+This screenshot shows active consumers processing messages from RabbitMQ. The logs confirm successful message processing, retries (if needed), and acknowledgments.
+
+📸 Screenshot:
+![Screenshot 2025-03-09 173708](https://github.com/user-attachments/assets/3236f962-2ad2-435d-a985-40e3f76ec1f8)
+![Screenshot 2025-03-09 173829](https://github.com/user-attachments/assets/ac70d203-4c80-44f3-8115-6adbe529b1f8)
+
+
+### 2️⃣ Docker Running All Services
+This screenshot displays the Docker containers running RabbitMQ, MongoDB, Redis, API, Prometheus, Loki, and Grafana.
+
+📸 Screenshot:
+![Screenshot 2025-03-09 230340](https://github.com/user-attachments/assets/f09b6734-9e09-4424-8d8b-703acb2568e2)
+
+### 3️⃣ Prometheus Monitoring
+A screenshot of Prometheus metrics tracking system performance, including event throughput, response times, and service health.
+
+📸 Screenshot:
+![Screenshot 2025-03-09 230008](https://github.com/user-attachments/assets/80f7ded0-287c-4dbc-9038-b2cd0d90853f)
+
+
+### 4️⃣ Grafana Dashboard
+A screenshot of the Grafana dashboard visualizing system performance, logs, and alerts.
+
+📸 Screenshot:
+![Screenshot 2025-03-09 214253](https://github.com/user-attachments/assets/e9f15c58-984b-468b-b71c-7adb8866db95)
+![Screenshot 2025-03-09 213956](https://github.com/user-attachments/assets/94777148-9526-42fc-9eda-077aceeabbb2)
+
+
+### 5️⃣ Logs Showing Caching in Action
+This screenshot highlights Redis caching successfully working, reducing database queries and improving response times.
+
+📸 Screenshot:
+
+![Screenshot 2025-03-09 231716](https://github.com/user-attachments/assets/9ae3b7a6-1a81-4ddc-9781-0a6441d69d0c)
+
 
 ## Future Enhancements
 - **Kubernetes Deployment**: Scale dynamically with K8s pods.
-- **Advanced Alerting**: Set up alerts for failures using Prometheus Alertmanager.
 - **Data Streaming**: Use Kafka alongside RabbitMQ for event stream processing.
+- **Nginx as Load Balancer**: Implement **Nginx** to distribute traffic efficiently among multiple instances of the API, ensuring **high availability and load balancing**.
 
 ---
 
