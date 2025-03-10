@@ -1,7 +1,7 @@
 # Event-Driven Scalable Data Processing System
 
 ## Introduction
-This project implements a scalable and resilient **event-driven system** for processing high-throughput real-time data streams using **RabbitMQ, MongoDB, Redis, GraphQL, Prometheus, Loki, and Grafana**. It features **four producers and four consumers**, ensuring fault tolerance, monitoring, and caching to enhance performance and reliability. The system is **fully containerized** with Docker, making it ready for Kubernetes (K8s) integration in the future.
+This project implements a scalable and resilient **event-driven system** for processing high-throughput real-time data streams using **RabbitMQ, MongoDB, Redis, GraphQL, Prometheus, Loki, and Grafana**. It features **four producers and four consumers**, ensuring fault tolerance, monitoring, and caching to enhance performance and reliability. The system is designed for high efficiency, leveraging **Redis caching** to store frequently accessed data and reduce database queries. Additionally, **GraphQL optimizes** data fetching, ensuring **minimal latency and improved performance**. The system is **fully containerized** with Docker, making it ready for Kubernetes (K8s) integration in the future.
 
 ---
 
@@ -12,7 +12,7 @@ Design and implement a resilient event-processing system capable of handling hig
 ### Key Requirements & How Our System Fulfills Them:
 
 1. **Scalable Event Ingestion Pipeline**
-   - We use **RabbitMQ** ([Official Docs](https://www.rabbitmq.com/documentation.html)) as a message broker to efficiently ingest data from **four different producers**.
+   - We use **RabbitMQ** ([Official Docs](https://www.rabbitmq.com/tutorials)) as a message broker to efficiently ingest data from **four different producers**.
    - Each producer sends data to RabbitMQ, which distributes messages to available consumers.
    - **Scalability:** RabbitMQ queues and load balancing ensure smooth data ingestion under high traffic.
 
@@ -29,13 +29,13 @@ Design and implement a resilient event-processing system capable of handling hig
      ```
 
 3. **Queryable API for Processed Data**
-   - Implemented a **GraphQL API** ([Official Docs](https://graphql.org/)) for optimized querying.
+   - Implemented a **GraphQL API** ([Official Docs](https://graphql.org/faq/getting-started)) for optimized querying.
    - Redis caching is used to **speed up API calls** and reduce load on MongoDB.
 
 4. **Monitoring and Observability**
-   - **Grafana ([Docs](https://grafana.com/docs/))**: Visual dashboards for system metrics.
-   - **Prometheus ([Docs](https://prometheus.io/docs/))**: Captures real-time performance data.
-   - **Loki ([Docs](https://grafana.com/oss/loki/))**: Log aggregation and debugging.
+   - **Grafana ([Docs](https://grafana.com/docs/grafana/latest/getting-started))**: Visual dashboards for system metrics.
+   - **Prometheus ([Docs](https://prometheus.io/docs/prometheus/latest/getting_started/))**: Captures real-time performance data.
+   - **Loki ([Docs](https://grafana.com/docs/loki/latest/get-started/quick-start/))**: Log aggregation and debugging.
    - API endpoint to expose metrics:
      ```js
      app.get('/metrics', async (req, res) => {
@@ -44,18 +44,30 @@ Design and implement a resilient event-processing system capable of handling hig
          res.send(metrics);
      });
      ```
+     ```js
+     // Create logger for the application
+      const options = {
+          
+          transports: [
+            new LokiTransport({
+              host: "http://127.0.0.1:3100"
+            })
+          ]   
+        }; 
+      const logger = createLogger(options);
+      ```
 
 5. **System Resilience and Kubernetes Readiness**
    - **Containerization:** Dockerized services for easy deployment and scaling.
-   - **Future K8s Integration:** The system can be deployed on Kubernetes ([Docs](https://kubernetes.io/docs/)) to scale dynamically with multiple pods.
+   - **Future K8s Integration:** The system can be deployed on Kubernetes ([Docs](https://kubernetes.io/docs/setup/)) to scale dynamically with multiple pods.
 
 ---
 
 ## Project Setup & Running Locally
 
 ### Prerequisites
-- **Docker & Docker Compose** ([Install Docker](https://docs.docker.com/get-docker/))
-- **Node.js** ([Install Node.js](https://nodejs.org/))
+- **Docker & Docker Compose** ([Install Docker](https://www.docker.com/products/docker-desktop/))
+- **Node.js** ([Install Node.js](https://nodejs.org/en/download))
 
 ### Step 1: Clone the Repository
 ```sh
